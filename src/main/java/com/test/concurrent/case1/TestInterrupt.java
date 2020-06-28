@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j(topic = "c.TestInterrupt")
 public class TestInterrupt {
     public static void main(String[] args) throws InterruptedException {
-        test4();
+        test2();
     }
     private static void test4() {
         Thread t1 = new Thread(() -> {

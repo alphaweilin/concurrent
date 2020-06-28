@@ -4,8 +4,8 @@ import java.util.concurrent.FutureTask;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "c.Test2")
-public class Test2 {
+@Slf4j(topic = "c.TestFutureTask")
+public class TestFutureTask {
 	public static void main(String[] args) throws Exception {
 		FutureTask<Integer> task3 = new FutureTask<>(() -> {
 			log.debug("hello");
