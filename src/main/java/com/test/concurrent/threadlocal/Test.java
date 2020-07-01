@@ -1,4 +1,4 @@
-package com.test.concurrent.threadloacl;
+package com.test.concurrent.threadlocal;
 
 public class Test {
 
