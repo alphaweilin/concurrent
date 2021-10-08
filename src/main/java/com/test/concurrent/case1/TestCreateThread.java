@@ -30,6 +30,8 @@ public class TestCreateThread {
 		new Thread(futureTask,"t3").start();
 		log.debug("{}",futureTask.get());
 		
+		Runnable t4 = ()->{log.debug("test");};
+		t4.run();
 		
 
 	}

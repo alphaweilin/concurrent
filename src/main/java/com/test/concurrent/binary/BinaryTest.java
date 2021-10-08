@@ -10,7 +10,8 @@ public class BinaryTest {
 	
 	private static void floatToDecimal() {
 		Float floatNumber = 0.91f;
-		System.out.println(floatNumber.toString());
+//		Float floatNumber = 0.5f;
+		System.out.println(floatNumber);
 		
 		BigDecimal decimalNumber = new BigDecimal(floatNumber);
 		System.out.println(decimalNumber);

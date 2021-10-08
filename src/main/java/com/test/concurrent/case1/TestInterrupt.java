@@ -2,13 +2,31 @@ package com.test.concurrent.case1;
 
 import java.util.concurrent.locks.LockSupport;
 
+import com.test.concurrent.util.Sleeper;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "c.TestInterrupt")
 public class TestInterrupt {
     public static void main(String[] args) throws InterruptedException {
-        test2();
+        test5();
     }
+    
+    private static void test5() {
+    	Thread t1 = new Thread(()->{
+    		for(int i=0; i<5; i++) {
+    			log.debug("park...");
+    			LockSupport.park();
+    			log.debug("打断状态{}", Thread.currentThread().isInterrupted());
+    		}
+    	},"t1");
+    	
+    	t1.start();
+    	Sleeper.sleep(1);
+    	log.debug("1s later");
+    	t1.interrupt();
+    }
+    
     private static void test4() {
         Thread t1 = new Thread(() -> {
    

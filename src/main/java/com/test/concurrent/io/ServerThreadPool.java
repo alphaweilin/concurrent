@@ -11,7 +11,7 @@ public class ServerThreadPool {
 
 	public static void main(String[] args) {
 		try (ServerSocket serverSocket = new ServerSocket(8882)) {
-			ExecutorService executor = Executors.newFixedThreadPool(8);
+			ExecutorService executor = Executors.newFixedThreadPool(3);
 			while (true) {
 				Socket clientSocket = serverSocket.accept();
 				System.out.println("Connection from " + clientSocket.getRemoteSocketAddress());

@@ -38,7 +38,9 @@ public class Book {
 	public void setPrice(Double price) {
 		this.price = price;
 	}
-	
-	
+	@Override
+	public String toString() {
+		return "Book [name=" + name + ", author=" + author + ", publication=" + publication + ", price=" + price + "]";
+	}
 
 }

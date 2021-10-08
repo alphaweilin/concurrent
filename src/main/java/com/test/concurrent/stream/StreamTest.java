@@ -2,14 +2,21 @@ package com.test.concurrent.stream;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Random;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * refer https://www.jianshu.com/p/ceb7bf515c03
+ * refer https://www.jianshu.com/p/ceb7bf515c03,
+ * https://developer.ibm.com/zh/languages/java/articles/j-lo-java8streamapi/
  * 
  * @author WeiLin
  *
@@ -17,7 +24,7 @@ import java.util.stream.Stream;
 public class StreamTest {
 
 	public static void main(String[] args) {
-		test5();
+		test13();
 	}
 
 	public static void test1() {
@@ -61,6 +68,9 @@ public class StreamTest {
 				new Book("MongoDB权威指南（第2版）", "Kristina Chodorow", "人民邮电出版社", 69.00D));
 		// 计算所有图书的总价
 		Optional<Double> totalPrice = books.stream().map(Book::getPrice).reduce((n, m) -> n + m);
+		Optional<Double> totalPrice2 = books.stream().map(Book::getPrice).reduce(Double::sum);
+		System.out.println(totalPrice.get());
+		System.out.println(totalPrice2.get());
 		// 价格最高的图书
 		Optional<Book> expensive = books.stream().max(Comparator.comparing(Book::getPrice));
 		// 价格最低的图书
@@ -92,22 +102,118 @@ public class StreamTest {
 //		List<String> flatMapList = playersInWorldCup2016.stream().flatMap(pList -> pList.stream())
 //				.collect(Collectors.toList());
 //		System.out.println(flatMapList);
-		
-		//.stream() return type Stream<List<String>>
-		//.flatMap() return type Stream<String>
+
+		// .stream() return type Stream<List<String>>
+		// .flatMap() return type Stream<String>
 		Stream<String> playerStream = playersInWorldCup2016.stream().flatMap(pList -> pList.stream());
 		playerStream.forEach(System.out::println);
-		
+
 //		playersInWorldCup2016.forEach(System.out::println);
 
 	}
 
 	public static void test6() {
-
+		List<Book> books = Arrays.asList(new Book("Java编程思想", "Bruce Eckel", "机械工业出版社", 108.00D),
+				new Book("Java 8实战", "Mario Fusco", "人民邮电出版社", 79.00D),
+				new Book("MongoDB权威指南（第2版）", "Kristina Chodorow", "人民邮电出版社", 69.00D));
+		DoubleSummaryStatistics doubleSummaryStatistics = books.stream().mapToDouble((x) -> x.getPrice())
+				.summaryStatistics();
+		System.out.println(doubleSummaryStatistics.getSum());
 	}
 
 	public static void test7() {
+		List<Book> transactions = Arrays.asList(new Book("Java编程思想", "Bruce Eckel", "机械工业出版社", 108.00D),
+				new Book("Java 8实战", "Mario Fusco", "人民邮电出版社", 79.00D),
+				new Book("MongoDB权威指南（第2版）", "Kristina Chodorow", "人民邮电出版社", 69.00D));
+		List<String> bookNameList = transactions.parallelStream().filter(t -> t.getPublication() == "人民邮电出版社")
+				.sorted(Comparator.comparing(Book::getPrice)).map(Book::getName).collect(Collectors.toList());
+
+		bookNameList.forEach(System.out::println);
 
 	}
+
+	public static void test8() {
+		Optional<String> concat = Stream.of("A", "B", "C", "D").reduce((a, b) -> a.concat(b));
+		String concat1 = Stream.of("A", "B", "C", "D").reduce("", String::concat);
+		System.out.println(concat.get());
+	}
+
+	public static void test9() {
+		Random random = new Random();
+		Supplier<Integer> randomSupplier = random::nextInt;
+
+		Stream.generate(randomSupplier).limit(10).forEach(System.out::println);
+	}
+
+	public static void test10() {
+		Stream.iterate(0, n -> n + 3).limit(10).forEach(System.out::println);
+	}
+
+	public static void test11() {
+		List<Book> books = Arrays.asList(new Book("Java编程思想", "Bruce Eckel", "机械工业出版社", 108.00D),
+				new Book("Java 8实战", "Mario Fusco", "人民邮电出版社", 79.00D),
+				new Book("MongoDB权威指南（第2版）", "Kristina Chodorow", "人民邮电出版社", 69.00D));
+		Map<String, List<Book>> resultMap = books.stream().collect(Collectors.groupingBy(Book::getPublication));
+		for (Entry<String, List<Book>> entry : resultMap.entrySet()) {
+			System.out.println(entry.getKey());
+		}
+
+		Map<Boolean, List<Book>> resultMap2 = books.stream()
+				.collect(Collectors.partitioningBy(book -> book.getPrice() > 20));
+		for (Entry<Boolean, List<Book>> entry : resultMap2.entrySet()) {
+			System.out.println(entry.getKey() + ":" + entry.getValue().size());
+		}
+	}
+
+	public static void test12() {
+		List<Book> books = Arrays.asList(new Book("Java编程思想", "Bruce Eckel", "机械工业出版社", 108.00D),
+				new Book("Java 8实战", "Mario Fusco", "人民邮电出版社", 79.00D),
+				new Book("MongoDB权威指南（第2版）", "Kristina Chodorow", "人民邮电出版社", 69.00D),
+				new Book("MongoDB", "Kristina Chodorow", "人民邮电出版社", 50.00D),
+				new Book("MongoDB", "Kristina Chodorow", "人民邮电出版社", 50.00D));
+
+		Map<String, List<Book>> booksGroup = books.stream().collect(Collectors.groupingBy(book -> {
+			if (book.getPrice() > 0 && book.getPrice() <= 50) {
+				return "A";
+			} else if (book.getPrice() > 50 && book.getPrice() <= 100) {
+				return "B";
+			} else {
+				return "C";
+			}
+		}));
+		
+		for (Entry entry:booksGroup.entrySet()) {
+			System.out.println(entry.getKey()+":"+entry.getValue().toString());
+		}
+		
+		Map<String, Map<String, List<Book>>> booksGroup2 = books.stream().collect(
+		        Collectors.groupingBy(Book::getPublication, Collectors.groupingBy(book -> {
+		            if (book.getPrice() > 0 && book.getPrice() <= 50) {
+		                return "A";
+		            } else if (book.getPrice() > 50 && book.getPrice() <=100) {
+		                return "B";
+		            } else {
+		                return "C";
+		            }
+		        }))
+		);
+		
+		for (Entry entry:booksGroup2.entrySet()) {
+			System.out.println(entry.getKey()+":"+entry.getValue().toString());
+		}
+		
+	}
+	
+	public static void test13() {
+		List<Book> books = Arrays.asList(new Book("Java编程思想", "Bruce Eckel", "机械工业出版社", 108.00D),
+				new Book("Java 8实战", "Mario Fusco", "人民邮电出版社", 79.00D),
+				new Book("MongoDB权威指南（第2版）", "Kristina Chodorow", "人民邮电出版社", 69.00D),
+				new Book("MongoDB", "Kristina Chodorow", "人民邮电出版社", 50.00D),
+				new Book("MongoDB", "Kristina Chodorow", "人民邮电出版社", 50.00D));
+		List<String> list = books.stream().map(Book::getName).distinct().collect(Collectors.toList());
+		System.out.println(list);
+	}
+	
+	 
 
 }
